@@ -4,13 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.widget.Toast;
+import android.net.Uri;
+import android.util.Log;
 
 import com.android.dingtalk.share.ddsharemodule.DDShareApiFactory;
 import com.android.dingtalk.share.ddsharemodule.IDDAPIEventHandler;
 import com.android.dingtalk.share.ddsharemodule.IDDShareApi;
 import com.android.dingtalk.share.ddsharemodule.message.BaseReq;
 import com.android.dingtalk.share.ddsharemodule.message.BaseResp;
+import com.android.dingtalk.share.ddsharemodule.message.DDImageMessage;
 import com.android.dingtalk.share.ddsharemodule.message.DDMediaMessage;
 import com.android.dingtalk.share.ddsharemodule.message.DDWebpageMessage;
 import com.android.dingtalk.share.ddsharemodule.message.SendMessageToDD;
@@ -20,17 +22,33 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
 public class DingTalkShareModule extends ReactContextBaseJavaModule implements IDDAPIEventHandler {
-    public static DingTalkShareModule mInstance;
+    private static final String TAG = "DingTalkShare";
 
-    private IDDShareApi mIDDShareApi;
+    private static final String NOT_INSTALLED_CODE = "NOT_INSTALLED";
+    private static final String NOT_SUPPORTED_CODE = "NOT_SUPPORTED";
+
+    private static DingTalkShareModule mInstance;
+    // 不能在构造方法里初始化，因为构造方法获取不到需要的 Activity.
+    private static IDDShareApi mDDShareApi;
     private Promise mPromise;
 
     public DingTalkShareModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        mIDDShareApi = DDShareApiFactory.createDDShareApi(reactContext, getAppID(reactContext), true);
-        if (mInstance == null) {
-            mInstance = this;
+    }
+
+    public static IDDShareApi getDdShareApi(Context context) {
+        if (mDDShareApi == null) {
+            String appId = getAppID(context);
+            mDDShareApi = DDShareApiFactory.createDDShareApi(context, appId, true);
         }
+        return mDDShareApi;
+    }
+
+    public static DingTalkShareModule getInstance(ReactApplicationContext reactContext) {
+        if (mInstance == null) {
+            mInstance = new DingTalkShareModule(reactContext);
+        }
+        return mInstance;
     }
 
     @Override
@@ -39,10 +57,29 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
     }
 
     @ReactMethod
+    public void isInstalled(Promise promise) {
+        IDDShareApi ddShareApi = getDdShareApi(getCurrentActivity());
+        if (ddShareApi.isDDAppInstalled()) {
+            promise.resolve(true);
+        } else {
+            promise.reject(NOT_INSTALLED_CODE, "请安装钉钉客户端");
+        }
+    }
+
+    @ReactMethod
+    public void isSupported(Promise promise) {
+        IDDShareApi ddShareApi = getDdShareApi(getCurrentActivity());
+        if (ddShareApi.isDDSupportAPI()) {
+            promise.resolve(true);
+        } else {
+            promise.reject(NOT_SUPPORTED_CODE, "请升级钉钉客户端版本");
+        }
+    }
+
+    @ReactMethod
     public void shareWebPage(String url, String thumbImage, String title, String content, Promise promise) {
         mPromise = promise;
         if (!checkSupport()) {
-            mPromise.reject("NOT_SUPPORTED", "钉钉未安装或者版本不支持");
             return;
         }
         //初始化一个DDWebpageMessage并填充网页链接地址
@@ -62,15 +99,42 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
         webReq.mMediaMessage = webMessage;
 
         //调用api接口发送消息到支付宝
-        mIDDShareApi.sendReq(webReq);
+        getDdShareApi(getCurrentActivity()).sendReq(webReq);
+    }
+
+    /**
+     * 分享图片
+     */
+    @ReactMethod
+    private void shareImage(String image) {
+        //初始化一个DDImageMessage
+        DDImageMessage imageObject = new DDImageMessage();
+        if (isLocalResource(image)) {
+            imageObject.mImagePath = image;
+        } else {
+            imageObject.mImageUrl = image;
+        }
+
+        //构造一个mMediaObject对象
+        DDMediaMessage mediaMessage = new DDMediaMessage();
+        mediaMessage.mMediaObject = imageObject;
+
+        //构造一个Req
+        SendMessageToDD.Req req = new SendMessageToDD.Req();
+        req.mMediaMessage = mediaMessage;
+
+        //调用api接口发送消息到支付宝
+        getDdShareApi(getCurrentActivity()).sendReq(req);
     }
 
     @Override
     public void onReq(BaseReq baseReq) {
+        Log.d(TAG, "onReq");
     }
 
     @Override
     public void onResp(BaseResp baseResp) {
+        Log.d(TAG, baseResp.mErrStr);
         int errCode = baseResp.mErrCode;
         switch (errCode) {
             case BaseResp.ErrCode.ERR_OK:
@@ -84,6 +148,7 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
 
     /**
      * 获取钉钉 App ID
+     *
      * @param context
      * @return
      */
@@ -93,7 +158,7 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
             appInfo = context.getPackageManager()
                     .getApplicationInfo(context.getPackageName(),
                             PackageManager.GET_META_DATA);
-            return appInfo.metaData.get("DD_APP_ID").toString();
+            return appInfo.metaData.get("DT_APP_ID").toString();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -101,17 +166,25 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
     }
 
     public static void handleIntent(Intent intent) {
-        if (mInstance != null) {
-            mInstance.mIDDShareApi.handleIntent(intent, mInstance);
+        if (mInstance != null && mDDShareApi != null) {
+            mDDShareApi.handleIntent(intent, mInstance);
         }
     }
 
+    private boolean isLocalResource(String url) {
+        Uri thumbUri = Uri.parse(url);
+        // Verify scheme is set, so that relative uri (used by static resources) are not handled.
+        String scheme = thumbUri.getScheme();
+        return (scheme == null || scheme.equals("file"));
+    }
+
     private boolean checkSupport() {
-        if (!mIDDShareApi.isDDAppInstalled()) {
-            Toast.makeText(getReactApplicationContext(), "请安装钉钉客户端", Toast.LENGTH_SHORT).show();
+        IDDShareApi ddShareApi = getDdShareApi(getCurrentActivity());
+        if (!ddShareApi.isDDAppInstalled()) {
+            mPromise.reject(NOT_INSTALLED_CODE, "请安装钉钉客户端");
             return false;
-        } else if (!mIDDShareApi.isDDSupportAPI()) {
-            Toast.makeText(getReactApplicationContext(), "请升级钉钉客户端版本", Toast.LENGTH_SHORT).show();
+        } else if (!ddShareApi.isDDSupportAPI()) {
+            mPromise.reject(NOT_SUPPORTED_CODE, "请升级钉钉客户端版本");
             return false;
         }
         return true;

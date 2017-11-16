@@ -2,18 +2,7 @@
           package="im.shimo.dingtalkshare">
     <application
         android:allowBackup="true">
-        <meta-data android:name="DD_APP_ID" android:value="${DD_APP_ID}"/>
-        <activity
-            android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:launchMode="singleInstance"
-            android:name=".DingTalkShareActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
-            </intent-filter>
-
-        </activity>
+        <meta-data android:name="DT_APP_ID" android:value="${DT_APP_ID}"/>
 
     </application>
 </manifest>

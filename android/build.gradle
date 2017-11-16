@@ -13,7 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
         manifestPlaceholders = [
-                DD_APP_ID: computeDDAppId()
+                DT_APP_ID: getDingTalkAppId()
         ]
     }
 
@@ -31,9 +31,9 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
 }
 
-def computeDDAppId() {
-    // dynamically retrieve qq app id from package.json
+def getDingTalkAppId() {
+    // dynamically retrieve ding talk app id from package.json
     def slurper = new JsonSlurper()
     def json = slurper.parse(file('../../../package.json'), "utf-8")
-    return json.dd_app_id
+    return json.dt_app_id
 }

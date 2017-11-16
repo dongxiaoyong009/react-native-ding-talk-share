@@ -14,7 +14,7 @@ public class DingTalkSharePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new DingTalkShareModule(reactContext));
+        modules.add(DingTalkShareModule.getInstance(reactContext));
         return modules;
     }
 
