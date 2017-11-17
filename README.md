@@ -12,6 +12,8 @@ npm install react-native-ding-talk-share --save
 react-native link react-native-ding-talk-share
 ```
 
+`package.json` 中添加 `"dt_app_id": "<your_ding_talk_app_id>",`
+
 ### Android
 
 首先在工程中创建 `ddshare` 的 package，然后在在该 package 下创建 `DDShareActivity`，内容如下
@@ -55,11 +57,20 @@ public class DDShareActivity extends Activity {
 
 ### iOS
 
+参考官方文档修改 `LSApplicationQueriesSchemes` 和 `URL Types`
+
+General > Linked Frameworks and Libraries > 添加 `node_modules/react-native-ding-talk-share/ios/DTShareKit.framework`
+
+Build Settings > Framework Search Paths > 添加 `$(SRCROOT)/../node_modules/react-native-ding-talk-share/ios` `no recursive`
+
 ## Usage
 
 ```javascript
-import RNDingTalkShare from 'react-native-ding-talk-share';
+import DingTalk from 'react-native-ding-talk-share';
 
-// TODO: What to do with the module?
-RNDingTalkShare;
+// share web page
+result = await DingTalk.shareWebPage(link, wechatURIProcess(thumb || icon), title, content);
+
+// share image
+result = await DingTalk.shareImage(image);
 ```

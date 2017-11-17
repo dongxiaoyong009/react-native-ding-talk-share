@@ -26,6 +26,7 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
 
     private static final String NOT_INSTALLED_CODE = "NOT_INSTALLED";
     private static final String NOT_SUPPORTED_CODE = "NOT_SUPPORTED";
+    private static final String SHARE_FAILED_CODE = "SHARE_FAILED";
 
     private static DingTalkShareModule mInstance;
     // 不能在构造方法里初始化，因为构造方法获取不到需要的 Activity.
@@ -59,21 +60,13 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
     @ReactMethod
     public void isInstalled(Promise promise) {
         IDDShareApi ddShareApi = getDdShareApi(getCurrentActivity());
-        if (ddShareApi.isDDAppInstalled()) {
-            promise.resolve(true);
-        } else {
-            promise.reject(NOT_INSTALLED_CODE, "请安装钉钉客户端");
-        }
+        promise.resolve(ddShareApi.isDDAppInstalled());
     }
 
     @ReactMethod
     public void isSupported(Promise promise) {
         IDDShareApi ddShareApi = getDdShareApi(getCurrentActivity());
-        if (ddShareApi.isDDSupportAPI()) {
-            promise.resolve(true);
-        } else {
-            promise.reject(NOT_SUPPORTED_CODE, "请升级钉钉客户端版本");
-        }
+        promise.resolve(ddShareApi.isDDSupportAPI());
     }
 
     @ReactMethod
@@ -99,14 +92,20 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
         webReq.mMediaMessage = webMessage;
 
         //调用api接口发送消息到支付宝
-        getDdShareApi(getCurrentActivity()).sendReq(webReq);
+        if (!getDdShareApi(getCurrentActivity()).sendReq(webReq)) {
+            mPromise.reject(SHARE_FAILED_CODE, "分享失败");
+        }
     }
 
     /**
      * 分享图片
      */
     @ReactMethod
-    private void shareImage(String image) {
+    private void shareImage(String image, Promise promise) {
+        mPromise = promise;
+        if (!checkSupport()) {
+            return;
+        }
         //初始化一个DDImageMessage
         DDImageMessage imageObject = new DDImageMessage();
         if (isLocalResource(image)) {
@@ -124,7 +123,9 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
         req.mMediaMessage = mediaMessage;
 
         //调用api接口发送消息到支付宝
-        getDdShareApi(getCurrentActivity()).sendReq(req);
+        if (!getDdShareApi(getCurrentActivity()).sendReq(req)) {
+            mPromise.reject(SHARE_FAILED_CODE, "分享失败");
+        }
     }
 
     @Override
@@ -184,7 +185,7 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
             mPromise.reject(NOT_INSTALLED_CODE, "请安装钉钉客户端");
             return false;
         } else if (!ddShareApi.isDDSupportAPI()) {
-            mPromise.reject(NOT_SUPPORTED_CODE, "请升级钉钉客户端版本");
+            mPromise.reject(NOT_SUPPORTED_CODE, "请升级钉钉客户端");
             return false;
         }
         return true;
