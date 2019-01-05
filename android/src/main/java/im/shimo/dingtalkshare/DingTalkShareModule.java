@@ -128,6 +128,27 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
         }
     }
 
+    @ReactMethod
+    public void getAuthCode(Promise promise) {
+        mPromise = promise;
+        if (!checkSupport()) {
+            return;
+        }
+        // WritableMap map = Arguments.createMap();
+        // map.putInt("errCode", 1);
+        // map.putString("msg", "ddd");
+        // DDModule.promise.resolve(map);
+
+        SendAuth.Req req = new SendAuth.Req();
+        req.scope = DING_SCOPE;
+        req.state = "test";
+
+        //调用api接口发送消息到支付宝
+        if (!getDdShareApi(getCurrentActivity()).sendReq(req)) {
+            mPromise.reject(SHARE_FAILED_CODE, "分享失败");
+        }
+    }
+
     @Override
     public void onReq(BaseReq baseReq) {
         Log.d(TAG, "onReq");

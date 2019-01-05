@@ -107,6 +107,24 @@ RCT_EXPORT_METHOD(shareWebPage
     }
 }
 
+RCT_EXPORT_METHOD(getAuthCode
+                  : (NSString *)bundleId
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject) {
+    self.resolveBlock = resolve;
+    self.rejectBlock = reject;
+    if (![self checkSupport]) {
+        return;
+    }
+
+    DTAuthorizeReq *authReq = [DTAuthorizeReq new];
+    authReq.bundleId = [[NSBundle mainBundle] bundleIdentifier];
+
+    if (![DTOpenAPI sendReq:authReq]) {
+        reject(DING_TALK_SHARE_FAILED_CODE, @"获取授权码失败", nil);
+    }
+}
+
 #pragma mark - DTOpenAPIDelegate
 
 /**

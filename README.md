@@ -73,4 +73,7 @@ result = await DingTalk.shareWebPage(link, wechatURIProcess(thumb || icon), titl
 
 // share image
 result = await DingTalk.shareImage(image);
+
+// get auth code
+result = await DingTalk.getAuthCode();
 ```
