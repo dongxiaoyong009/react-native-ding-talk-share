@@ -1,8 +1,7 @@
-
 {
-  "name": "react-native-ding-talk-share",
-  "version": "0.1.1",
-  "description": "",
+  "name": "react-native-ding-talk-share-pro",
+  "version": "0.0.1",
+  "description": "在react-native-ding-talk-share 这个包的基础上增加钉钉登录授权的支持",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

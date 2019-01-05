@@ -1,5 +1,5 @@
 
-# react-native-ding-talk-share
+# react-native-ding-talk-share-pro
 
 钉钉分享 react native 版 SDK
 
@@ -8,8 +8,8 @@
 ## 安装
 
 ```sh
-npm install react-native-ding-talk-share --save
-react-native link react-native-ding-talk-share
+npm install react-native-ding-talk-share-pro --save
+react-native link react-native-ding-talk-share-pro
 ```
 
 `package.json` 中添加 `"dt_app_id": "<your_ding_talk_app_id>",`
@@ -59,14 +59,14 @@ public class DDShareActivity extends Activity {
 
 参考官方文档修改 `LSApplicationQueriesSchemes` 和 `URL Types`
 
-General > Linked Frameworks and Libraries > 添加 `node_modules/react-native-ding-talk-share/ios/DTShareKit.framework`
+General > Linked Frameworks and Libraries > 添加 `node_modules/react-native-ding-talk-share-pro/ios/DTShareKit.framework`
 
-Build Settings > Framework Search Paths > 添加 `$(SRCROOT)/../node_modules/react-native-ding-talk-share/ios` `no recursive`
+Build Settings > Framework Search Paths > 添加 `$(SRCROOT)/../node_modules/react-native-ding-talk-share-pro/ios` `no recursive`
 
 ## Usage
 
 ```javascript
-import DingTalk from 'react-native-ding-talk-share';
+import DingTalk from 'react-native-ding-talk-share-pro';
 
 // share web page
 result = await DingTalk.shareWebPage(link, wechatURIProcess(thumb || icon), title, content);
