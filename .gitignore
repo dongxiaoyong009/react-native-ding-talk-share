@@ -82,8 +82,10 @@ iOSInjectionProject/
 # MacOS
 .DS_Store
 
-# Jetbrains
+build/
 .idea
+.gradle
+local.properties
 *.iml
 
 # node

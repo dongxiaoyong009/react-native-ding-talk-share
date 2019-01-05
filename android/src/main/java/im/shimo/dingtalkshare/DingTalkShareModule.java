@@ -16,6 +16,7 @@ import com.android.dingtalk.share.ddsharemodule.message.DDImageMessage;
 import com.android.dingtalk.share.ddsharemodule.message.DDMediaMessage;
 import com.android.dingtalk.share.ddsharemodule.message.DDWebpageMessage;
 import com.android.dingtalk.share.ddsharemodule.message.SendMessageToDD;
+import com.android.dingtalk.share.ddsharemodule.message.SendAuth;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -27,11 +28,12 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
     private static final String NOT_INSTALLED_CODE = "NOT_INSTALLED";
     private static final String NOT_SUPPORTED_CODE = "NOT_SUPPORTED";
     private static final String SHARE_FAILED_CODE = "SHARE_FAILED";
+    static final String DING_SCOPE = SendAuth.Req.SNS_LOGIN;
 
     private static DingTalkShareModule mInstance;
     // 不能在构造方法里初始化，因为构造方法获取不到需要的 Activity.
     private static IDDShareApi mDDShareApi;
-    private Promise mPromise;
+    public static Promise mPromise;
 
     public DingTalkShareModule(ReactApplicationContext reactContext) {
         super(reactContext);
