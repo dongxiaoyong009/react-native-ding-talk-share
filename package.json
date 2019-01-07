@@ -1,6 +1,6 @@
 {
-  "name": "react-native-ding-talk-share-pro",
-  "version": "0.0.4",
+  "name": "react-native-ding-talk-share-testing",
+  "version": "0.0.7",
   "description": "在react-native-ding-talk-share 这个包的基础上增加钉钉登录授权的支持",
   "main": "index.js",
   "scripts": {

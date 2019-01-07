@@ -20,3 +20,7 @@ export function shareImage(image) {
   return RNDingTalkShareModule && RNDingTalkShareModule.shareImage(image);
 }
 
+export function getAuthCode(image) {
+  return RNDingTalkShareModule && RNDingTalkShareModule.getAuthCode();
+}
+
