@@ -108,7 +108,6 @@ RCT_EXPORT_METHOD(shareWebPage
 }
 
 RCT_EXPORT_METHOD(getAuthCode
-                  : (NSString *)bundleId
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject) {
     self.resolveBlock = resolve;
