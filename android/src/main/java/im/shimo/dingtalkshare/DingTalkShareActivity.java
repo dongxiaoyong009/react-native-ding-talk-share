@@ -7,8 +7,10 @@ import android.util.Log;
 import com.android.dingtalk.share.ddsharemodule.DDShareApiFactory;
 import com.android.dingtalk.share.ddsharemodule.IDDAPIEventHandler;
 import com.android.dingtalk.share.ddsharemodule.IDDShareApi;
+import com.android.dingtalk.share.ddsharemodule.ShareConstant;
 import com.android.dingtalk.share.ddsharemodule.message.BaseReq;
 import com.android.dingtalk.share.ddsharemodule.message.BaseResp;
+import com.android.dingtalk.share.ddsharemodule.message.SendAuth;
 
 public class DingTalkShareActivity extends Activity implements IDDAPIEventHandler {
 
