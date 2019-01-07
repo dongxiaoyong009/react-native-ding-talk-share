@@ -33,8 +33,8 @@ public class DingTalkShareModule extends ReactContextBaseJavaModule implements I
     private static DingTalkShareModule mInstance;
     // 不能在构造方法里初始化，因为构造方法获取不到需要的 Activity.
     private static IDDShareApi mDDShareApi;
-    public static Promise mPromise;
-
+    private Promise mPromise;
+    
     public DingTalkShareModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }

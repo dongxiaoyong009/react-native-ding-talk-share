@@ -142,7 +142,9 @@ RCT_EXPORT_METHOD(getAuthCode
  */
 - (void)onResp:(DTBaseResp *)resp {
     if (resp.errorCode == DTOpenAPISuccess) {
-        self.resolveBlock(@YES);
+        DTAuthorizeResp *authResp = (DTAuthorizeResp *)resp;
+        NSString *accessCode = authResp.accessCode;
+        self.resolveBlock([NSDictionary dictionaryWithObjectsAndKeys:accessCode,@"code", nil]);
     } else {
         self.rejectBlock([NSString stringWithFormat:@"%@", @(resp.errorCode)], resp.errorMessage, nil);
     }
